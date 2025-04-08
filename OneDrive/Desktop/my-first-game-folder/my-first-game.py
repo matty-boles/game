@@ -1,5 +1,5 @@
 import pygame
-
+import time
 
 display_width = 800
 display_height = 600
@@ -21,6 +21,27 @@ minion_width = 175
 def minion(x,y):
     gameDisplay.blit(minion_img, (x,y))
 
+def text_objects(text, font):
+    textSurface = font.render(text, True, black)
+    return textSurface, textSurface.get_rect()
+
+def message_display(text):
+    largeText = pygame.font.Font('freesansbold.ttf',115)
+    TextSurf, TextRect = text_objects(text, largeText)
+    TextRect.center = (display_width*0.5, display_height*0.5)
+    gameDisplay.blit(TextSurf, TextRect)
+
+    pygame.display.update()
+
+    time.sleep(2)
+
+    game_loop()
+
+
+def crash():
+    message_display('You Crashed')
+
+
 def game_loop():
     x = (display_width * 0.38)
     y = (display_height * 0.7)
@@ -33,7 +54,8 @@ def game_loop():
     while not gameExit:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                gameExit = True
+                pygame.quit()
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     x_change = -5
@@ -51,7 +73,7 @@ def game_loop():
         minion(x,y)
 
         if x > display_width - minion_width or x < 0:
-            gameExit = True
+            crash()
 
         pygame.display.update()
         clock.tick(60)
