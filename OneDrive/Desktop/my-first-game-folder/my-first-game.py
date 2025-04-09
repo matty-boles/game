@@ -60,15 +60,18 @@ def game_loop():
     y = (display_height * 0.7)
 
     x_change = 0
+    d = {}
+    thing_count = 2
 
-    thing_startx = random.randrange(0,display_width)
+    for i in range(thing_count):
+        d["thing_startx{0}".format(i)] = random.randrange(0,display_width)
+
     thing_starty = -600
     thing_speed = 4
     thing_width = 100
     thing_height = 100
 
     dodged = 0
-    thing_count = 2
 
 
     gameExit = False
@@ -94,8 +97,9 @@ def game_loop():
         gameDisplay.fill(white)
 
         #things(thingx, thingy, thingw, thingh, color)
-        things(thing_startx, thing_starty, thing_width, thing_height, block_colour)
-        thing_starty += thing_speed
+        for i in range(thing_count):
+            things(d["thing_startx{0}".format(i)], thing_starty, thing_width, thing_height, block_colour)
+            thing_starty += thing_speed
 
         minion(x,y)
         things_dodged(dodged)
@@ -104,15 +108,16 @@ def game_loop():
             crash()
         if thing_starty > display_height:   
             thing_starty = 0 - thing_height
-            thing_startx = random.randrange(0,display_width)
+            for i in range(thing_count):
+                d["thing_startx{0}".format(i)] = random.randrange(0,display_width)
             dodged += 1
             thing_speed += 0.5
             #thing_width += (dodged*1.2)
 
-
-        if x > thing_startx - minion_width + 20 and x < thing_startx + thing_width - 40:
-            if y < thing_starty + thing_height - 40:
-                crash()
+        for i in range(thing_count):
+            if x > d["thing_startx{0}".format(i)] - minion_width + 20 and x < d["thing_startx{0}".format(i)] + thing_width - 40:
+                if y < thing_starty + thing_height - 40:
+                    crash()
         pygame.display.update()
         clock.tick(60)
 
