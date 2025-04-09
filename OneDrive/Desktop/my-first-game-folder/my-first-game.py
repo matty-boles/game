@@ -9,6 +9,8 @@ black = (0,0,0)
 white = (255,255,255)
 red = (255,0,0)
 
+block_colour = (53, 155, 255)
+
 pygame.init()
 gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('A Bit Racey')
@@ -19,6 +21,12 @@ minion_img = pygame.transform.scale(minion_img_unscaled, (175,300))
 
 minion_width = 160
 minion_height = 300
+
+def things_dodged(count):
+    font = pygame.font.SysFont(None, 25)
+    text = font.render("Dodged: " + str(count), True, black)
+    gameDisplay.blit(text,(0,0))
+
 
 def things(thingx, thingy, thingw, thingh, color):
     pygame.draw.rect(gameDisplay, color, [thingx, thingy, thingw, thingh])
@@ -55,9 +63,12 @@ def game_loop():
 
     thing_startx = random.randrange(0,display_width)
     thing_starty = -600
-    thing_speed = 7
+    thing_speed = 4
     thing_width = 100
     thing_height = 100
+
+    dodged = 0
+    thing_count = 2
 
 
     gameExit = False
@@ -83,16 +94,20 @@ def game_loop():
         gameDisplay.fill(white)
 
         #things(thingx, thingy, thingw, thingh, color)
-        things(thing_startx, thing_starty, thing_width, thing_height, black)
+        things(thing_startx, thing_starty, thing_width, thing_height, block_colour)
         thing_starty += thing_speed
 
         minion(x,y)
+        things_dodged(dodged)
 
         if x > display_width - minion_width or x < 0:
             crash()
-        if thing_starty > display_height:
+        if thing_starty > display_height:   
             thing_starty = 0 - thing_height
             thing_startx = random.randrange(0,display_width)
+            dodged += 1
+            thing_speed += 0.5
+            #thing_width += (dodged*1.2)
 
 
         if x > thing_startx - minion_width + 20 and x < thing_startx + thing_width - 40:
