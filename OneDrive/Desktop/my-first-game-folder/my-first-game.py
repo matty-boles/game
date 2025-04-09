@@ -1,5 +1,6 @@
 import pygame
 import time
+import random
 
 display_width = 800
 display_height = 600
@@ -13,10 +14,14 @@ gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('A Bit Racey')
 clock = pygame.time.Clock()
 
-minion_img_unscaled = pygame.image.load('minion2.png')
-minion_img = pygame.transform.scale(minion_img_unscaled, (180,300))
+minion_img_unscaled = pygame.image.load('minion3.xcf')
+minion_img = pygame.transform.scale(minion_img_unscaled, (175,300))
 
-minion_width = 175
+minion_width = 160
+minion_height = 300
+
+def things(thingx, thingy, thingw, thingh, color):
+    pygame.draw.rect(gameDisplay, color, [thingx, thingy, thingw, thingh])
 
 def minion(x,y):
     gameDisplay.blit(minion_img, (x,y))
@@ -48,6 +53,12 @@ def game_loop():
 
     x_change = 0
 
+    thing_startx = random.randrange(0,display_width)
+    thing_starty = -600
+    thing_speed = 7
+    thing_width = 100
+    thing_height = 100
+
 
     gameExit = False
 
@@ -70,11 +81,23 @@ def game_loop():
         x += x_change
 
         gameDisplay.fill(white)
+
+        #things(thingx, thingy, thingw, thingh, color)
+        things(thing_startx, thing_starty, thing_width, thing_height, black)
+        thing_starty += thing_speed
+
         minion(x,y)
 
         if x > display_width - minion_width or x < 0:
             crash()
+        if thing_starty > display_height:
+            thing_starty = 0 - thing_height
+            thing_startx = random.randrange(0,display_width)
 
+
+        if x > thing_startx - minion_width + 20 and x < thing_startx + thing_width - 40:
+            if y < thing_starty + thing_height - 40:
+                crash()
         pygame.display.update()
         clock.tick(60)
 
