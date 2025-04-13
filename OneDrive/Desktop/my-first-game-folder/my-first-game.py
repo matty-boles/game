@@ -42,7 +42,7 @@ def exit():
 def unpause():
     global pause
     pause = False
-    
+
 
 def things_dodged(count):
     font = pygame.font.SysFont(None, 25)
@@ -93,7 +93,7 @@ def crash():
         gameDisplay.blit(TextSurf, TextRect)
 
         mouse = pygame.mouse.get_pos()
-        button("Replay",150,450,100,50,green,bright_green,unpause)
+        button("Replay",150,450,100,50,green,bright_green,game_loop)
         button("Quit",550,450,100,50,red,bright_red,exit)
 
         pygame.display.update()
@@ -169,6 +169,7 @@ def game_loop():
     global pause 
     global crashed
     global dodged
+    dodged = 0
 
     x_change = 0
     d = {}
@@ -191,9 +192,9 @@ def game_loop():
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    x_change = -10
+                    x_change = -15
                 if event.key == pygame.K_RIGHT:
-                    x_change = 10
+                    x_change = 15
                 if event.key == pygame.K_p:
                     pause = True
                     paused()
