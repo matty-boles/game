@@ -18,15 +18,21 @@ block_colour = (53, 155, 255)
 
 pause = False
 crashed = False
-dodged = 0
+score = 0
 
 pygame.init()
 gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Minion Crash')
 clock = pygame.time.Clock()
 
+crash_sound= pygame.mixer.Sound("crash_sound.wav")
+coin_sound= pygame.mixer.Sound("coin_sound.wav")
+pygame.mixer.music.load("background_music.wav")
+
 minion_img_unscaled = pygame.image.load('minion3.xcf')
 minion_img = pygame.transform.scale(minion_img_unscaled, (175,300))
+coin_img_unscaled = pygame.image.load("banana.webp")
+coin_img = pygame.transform.scale(coin_img_unscaled, (100,100))
 
 
 minion_width = 160
@@ -41,17 +47,22 @@ def exit():
 
 def unpause():
     global pause
+    pygame.mixer.music.unpause
     pause = False
 
 
-def things_dodged(count):
+
+def score_text(count):
     font = pygame.font.SysFont(None, 25)
-    text = font.render("Dodged: " + str(count), True, black)
+    text = font.render("Score: " + str(count), True, black)
     gameDisplay.blit(text,(0,0))
 
 
 def things(thingx, thingy, thingw, thingh, color):
     pygame.draw.rect(gameDisplay, color, [thingx, thingy, thingw, thingh])
+
+def coin(coinx,coiny):
+    gameDisplay.blit(coin_img, (coinx,coiny))
 
 def minion(x,y):
     gameDisplay.blit(minion_img, (x,y))
@@ -75,6 +86,9 @@ def message_display(text):
 
 def crash():
 
+    pygame.mixer.music.stop()
+    pygame.mixer.Sound.play(crash_sound)
+
     while crashed:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -87,7 +101,7 @@ def crash():
         gameDisplay.blit(TextSurf, TextRect)
 
         smallText = pygame.font.Font('freesansbold.ttf',50)
-        txt = "Score: " + str(dodged)
+        txt = "Score: " + str(score)
         TextSurf, TextRect = text_objects(txt, smallText)
         TextRect.center = (display_width*0.5, display_height*0.65)
         gameDisplay.blit(TextSurf, TextRect)
@@ -144,6 +158,8 @@ def game_intro():
 
 def paused():
 
+    pygame.mixer.music.pause()
+
     while pause:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -163,13 +179,16 @@ def paused():
         clock.tick(15)
     
 def game_loop():
+
+    pygame.mixer.music.play(-1)
+
     x = (display_width * 0.38)
     y = (display_height * 0.7)
 
     global pause 
     global crashed
-    global dodged
-    dodged = 0
+    global score
+    score = 0
 
     x_change = 0
     d = {}
@@ -182,6 +201,10 @@ def game_loop():
     thing_speed = 4
     thing_width = 100
     thing_height = 100
+
+    coinx = random.randrange(0,display_width)
+    coiny = -600
+    coin_speed = 4
 
 
     gameExit = False
@@ -213,8 +236,15 @@ def game_loop():
             things(d["thing_startx{0}".format(i)], thing_starty, thing_width, thing_height, block_colour)
             thing_starty += thing_speed
 
+        coin(coinx,coiny)
+        coiny += coin_speed
+
         minion(x,y)
-        things_dodged(dodged)
+        score_text(score)
+
+        if coiny > display_height:   
+            coiny = 0 - 100
+            coinx = random.randrange(0,display_width)
 
         if x > display_width - minion_width or x < 0:
             crashed = True
@@ -223,7 +253,6 @@ def game_loop():
             thing_starty = 0 - thing_height
             for i in range(thing_count):
                 d["thing_startx{0}".format(i)] = random.randrange(0,display_width)
-            dodged += 1
             thing_speed += 0.1
             #thing_width += (dodged*1.2)
 
@@ -232,6 +261,13 @@ def game_loop():
                 if y < thing_starty + thing_height - 40:
                     crashed = True
                     crash()
+
+        if x > coinx - minion_width + 20 and x < coinx + 100 - 40:
+            if y < coiny + 100 - 40:
+                pygame.mixer.Sound.play(coin_sound)
+                score += 1
+                coiny = -300
+                coinx = random.randrange(0,display_width)
         pygame.display.update()
         clock.tick(60)
 
